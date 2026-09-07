@@ -1,0 +1,34 @@
+[
+    {
+        "merged": "/Users/tanishaqverma/.gradle/daemon/8.13/com.assistant.device.app-debug-37:/layout_activity_main.xml.flat",
+        "source": "/Users/tanishaqverma/.gradle/daemon/8.13/com.assistant.device.app-main-39:/layout/activity_main.xml"
+    },
+    {
+        "merged": "/Users/tanishaqverma/.gradle/daemon/8.13/com.assistant.device.app-debug-37:/layout_item_smart_device.xml.flat",
+        "source": "/Users/tanishaqverma/.gradle/daemon/8.13/com.assistant.device.app-main-39:/layout/item_smart_device.xml"
+    },
+    {
+        "merged": "/Users/tanishaqverma/.gradle/daemon/8.13/com.assistant.device.app-debug-37:/drawable_bg_glass_card.xml.flat",
+        "source": "/Users/tanishaqverma/.gradle/daemon/8.13/com.assistant.device.app-main-39:/drawable/bg_glass_card.xml"
+    },
+    {
+        "merged": "/Users/tanishaqverma/.gradle/daemon/8.13/com.assistant.device.app-debug-37:/drawable_bg_glass_card_connected.xml.flat",
+        "source": "/Users/tanishaqverma/.gradle/daemon/8.13/com.assistant.device.app-main-39:/drawable/bg_glass_card_connected.xml"
+    },
+    {
+        "merged": "/Users/tanishaqverma/.gradle/daemon/8.13/com.assistant.device.app-debug-37:/drawable_bg_dashboard_gradient.xml.flat",
+        "source": "/Users/tanishaqverma/.gradle/daemon/8.13/com.assistant.device.app-main-39:/drawable/bg_dashboard_gradient.xml"
+    },
+    {
+        "merged": "com.assistant.device.app-debug-37:/layout_activity_main.xml.flat",
+        "source": "com.assistant.device.app-main-39:/layout/activity_main.xml"
+    },
+    {
+        "merged": "/Users/tanishaqverma/.gradle/daemon/8.13/com.assistant.device.app-debug-37:/drawable_bg_pulse_ring.xml.flat",
+        "source": "/Users/tanishaqverma/.gradle/daemon/8.13/com.assistant.device.app-main-39:/drawable/bg_pulse_ring.xml"
+    },
+    {
+        "merged": "/Users/tanishaqverma/.gradle/daemon/8.13/com.assistant.device.app-debug-37:/layout_item_notification.xml.flat",
+        "source": "/Users/tanishaqverma/.gradle/daemon/8.13/com.assistant.device.app-main-39:/layout/item_notification.xml"
+    }
+]

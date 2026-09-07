@@ -1,0 +1,19 @@
+<resources xmlns:tools="http://schemas.android.com/tools">
+    <!-- Base application theme. -->
+    <style name="Theme.VirtualAssistantHub" parent="Theme.Material3.DayNight.NoActionBar">
+        <!-- Primary brand color. -->
+        <item name="colorPrimary">@color/primary</item>
+        <item name="colorOnPrimary">@color/white</item>
+        <item name="colorPrimaryContainer">@color/primary_light</item>
+        <item name="colorOnPrimaryContainer">@color/slate_900</item>
+
+        <!-- Secondary brand color. -->
+        <item name="colorSecondary">@color/slate_700</item>
+        <item name="colorOnSecondary">@color/white</item>
+
+        <!-- Background colors -->
+        <item name="android:windowBackground">@color/slate_50</item>
+        <item name="android:statusBarColor">@color/slate_50</item>
+        <item name="android:windowLightStatusBar">true</item>
+    </style>
+</resources>

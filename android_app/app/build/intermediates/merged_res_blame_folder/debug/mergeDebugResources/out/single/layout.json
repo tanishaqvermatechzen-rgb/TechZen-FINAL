@@ -1,0 +1,18 @@
+[
+    {
+        "merged": "/Users/tanishaqverma/.gradle/daemon/8.13/com.assistant.device.app-mergeDebugResources-36:/layout/activity_main.xml",
+        "source": "/Users/tanishaqverma/.gradle/daemon/8.13/com.assistant.device.app-main-39:/layout/activity_main.xml"
+    },
+    {
+        "merged": "/Users/tanishaqverma/.gradle/daemon/8.13/com.assistant.device.app-mergeDebugResources-36:/layout/item_smart_device.xml",
+        "source": "/Users/tanishaqverma/.gradle/daemon/8.13/com.assistant.device.app-main-39:/layout/item_smart_device.xml"
+    },
+    {
+        "merged": "com.assistant.device.app-mergeDebugResources-36:/layout/activity_main.xml",
+        "source": "com.assistant.device.app-main-39:/layout/activity_main.xml"
+    },
+    {
+        "merged": "/Users/tanishaqverma/.gradle/daemon/8.13/com.assistant.device.app-mergeDebugResources-36:/layout/item_notification.xml",
+        "source": "/Users/tanishaqverma/.gradle/daemon/8.13/com.assistant.device.app-main-39:/layout/item_notification.xml"
+    }
+]
