@@ -1,11 +1,11 @@
 {
-  "cleanUrls": true,
-  "rewrites": [
-    { "source": "/api/events", "destination": "/api/events.json" },
-    { "source": "/api/registrations", "destination": "/api/registrations.json" },
-    { "source": "/api/teams/user-team", "destination": "/api/teams/user-team.json" },
-    { "source": "/api/teams/stream", "destination": "/api/teams/stream" },
-    { "source": "/api/teams/:path*", "destination": "/api/teams/user-team.json" },
-    { "source": "/:path*", "destination": "/index.html" }
+  "routes": [
+    { "src": "/api/events", "dest": "/api/events.json" },
+    { "src": "/api/registrations", "dest": "/api/registrations.json" },
+    { "src": "/api/teams/user-team", "dest": "/api/teams/user-team.json" },
+    { "src": "/api/teams/stream", "dest": "/api/teams/stream" },
+    { "src": "/api/teams/(.*)", "dest": "/api/teams/user-team.json" },
+    { "handle": "filesystem" },
+    { "src": "/(.*)", "dest": "/index.html" }
   ]
 }
