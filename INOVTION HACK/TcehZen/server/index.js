@@ -1004,6 +1004,48 @@ app.post('/api/registrations/withdraw', async (req, res) => {
   }
 });
 
+// GET /api/audit-logs - GET AUDIT LOGS FOR ADMIN CONTROL
+app.get('/api/audit-logs', async (req, res) => {
+  try {
+    const { rows } = await pool.query('SELECT * FROM audit_logs ORDER BY timestamp DESC LIMIT 200');
+    res.json(rows.map(r => ({
+      id: r.id,
+      action: r.action,
+      details: r.details,
+      targetUser: r.target_user,
+      editedBy: r.edited_by,
+      timestamp: r.timestamp
+    })));
+  } catch (err) {
+    console.error('Error fetching audit logs:', err);
+    res.status(500).json({ error: 'Failed to fetch audit logs' });
+  }
+});
+
+// POST /api/audit-logs - RECORD REGISTRATION EDIT AUDIT LOG
+app.post('/api/audit-logs', async (req, res) => {
+  try {
+    const { action, details, targetUser, editedBy } = req.body;
+    if (!action || !details) {
+      return res.status(400).json({ error: 'action and details required' });
+    }
+
+    const id = `audit-${Date.now()}-${Math.floor(Math.random() * 1000)}`;
+    const editor = editedBy || req.headers['x-user-email'] || 'Tanishaq Verma (Admin)';
+
+    const { rows } = await pool.query(`
+      INSERT INTO audit_logs (id, action, details, target_user, edited_by)
+      VALUES ($1, $2, $3, $4, $5)
+      RETURNING *;
+    `, [id, action, details, targetUser || 'Participant', editor]);
+
+    res.status(201).json(rows[0]);
+  } catch (err) {
+    console.error('Error recording audit log:', err);
+    res.status(500).json({ error: 'Failed to record audit log' });
+  }
+});
+
 if (!process.env.VERCEL) {
   app.listen(PORT, () => {
     console.log(`🚀 Supabase Database API Server running on port ${PORT}`);
