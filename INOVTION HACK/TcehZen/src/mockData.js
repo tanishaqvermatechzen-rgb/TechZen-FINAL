@@ -130,4 +130,49 @@ ARE YOU READY? JOIN. COMPETE. WIN.`,
   }
 ];
 
-export const INITIAL_REGISTRATIONS = [];
+export const INITIAL_REGISTRATIONS = [
+  {
+    id: 'reg-1788680773170',
+    eventId: 'event-1788625391659',
+    userId: 'usr-acadamex@gmail.com',
+    userName: 'Acadamex',
+    userEmail: 'acadamex@gmail.com',
+    ticketCode: 'TZ-WEF-781920',
+    answers: { teamName: 'SIH', teamRole: 'Product Manager', inviteCode: 'TZ-EVENT-237T5134' },
+    checkedIn: false,
+    registeredAt: '2026-09-06T02:16:13.000Z'
+  },
+  {
+    id: 'reg-1788680773171',
+    eventId: 'event-1788625391659',
+    userId: 'usr-237tanishaqverma@gmail.com',
+    userName: 'Tanishaq Verma',
+    userEmail: '237tanishaqverma@gmail.com',
+    ticketCode: 'TZ-WEF-237190',
+    answers: { teamName: 'SIH', teamRole: 'Team Lead / Admin', inviteCode: 'TZ-EVENT-237T5134' },
+    checkedIn: false,
+    registeredAt: '2026-09-06T02:16:15.000Z'
+  },
+  {
+    id: 'reg-1788680773172',
+    eventId: 'event-1788625391659',
+    userId: 'usr-tanishaqvermatechzen@gmail.com',
+    userName: 'Tanishaq Verma (TechZen)',
+    userEmail: 'tanishaqvermatechzen@gmail.com',
+    ticketCode: 'TZ-WEF-994120',
+    answers: { teamName: 'SIH', teamRole: 'Community Admin', inviteCode: 'TZ-EVENT-237T5134' },
+    checkedIn: false,
+    registeredAt: '2026-09-06T02:16:18.000Z'
+  },
+  {
+    id: 'reg-1788680773173',
+    eventId: 'event-1788625391659',
+    userId: 'usr-t2109052@gmail.com',
+    userName: 'T2109052',
+    userEmail: 't2109052@gmail.com',
+    ticketCode: 'TZ-WEF-501294',
+    answers: { teamName: 'SIH', teamRole: 'Hardware Lead', inviteCode: 'TZ-EVENT-237T5134' },
+    checkedIn: false,
+    registeredAt: '2026-09-06T02:16:20.000Z'
+  }
+];
