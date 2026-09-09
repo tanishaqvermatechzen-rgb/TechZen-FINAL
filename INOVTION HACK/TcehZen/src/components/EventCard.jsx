@@ -11,14 +11,15 @@ export default function EventCard({ event }) {
 
   const registered = isUserRegistered(event.id, currentUser?.id);
 
-  // Determine if the event has ended (Both Operation Cipher & QuizVerse have completed)
-  const isEnded = Boolean(
-    event.ended === true ||
-    event.isEnded === true ||
-    event.id === 'operation-cipher-2026' ||
-    event.id === 'quizverse-2026' ||
-    (event.date && !isNaN(Date.parse(event.date)) && new Date(event.date).getTime() < Date.now() - 24 * 60 * 60 * 1000)
-  );
+  const isEnded = Boolean((() => {
+    if (event.ended === true || event.isEnded === true) return true;
+    if (event.ended === false || event.isEnded === false) return false;
+    if (!event.date) return false;
+    const raw = String(event.date).trim();
+    const endPart = raw.includes('-') ? raw.split('-')[1].trim() : raw;
+    const parsed = Date.parse(endPart);
+    return !isNaN(parsed) && parsed < Date.now() - 24 * 60 * 60 * 1000;
+  })());
 
   const displayCategory = (event.category === 'QUIZ' || event.badge === 'TECH QUIZ' || (event.title || '').toLowerCase().includes('quiz')) 
     ? 'QUIZ' 

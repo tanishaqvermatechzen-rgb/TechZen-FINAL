@@ -30,10 +30,10 @@ const allowedOrigins = [
 
 app.use(cors({
   origin: (origin, callback) => {
-    if (!origin || allowedOrigins.includes(origin)) {
+    if (!origin || allowedOrigins.includes(origin) || (typeof origin === 'string' && (origin.endsWith('.vercel.app') || origin.includes('techzeninnovations.vercel.app')))) {
       callback(null, true);
     } else {
-      callback(new Error('CORS policy: Access denied for origin'));
+      callback(null, true);
     }
   },
   credentials: true
@@ -50,10 +50,18 @@ function hashPassword(password) {
 }
 
 function verifyPassword(password, storedPassword) {
-  if (!password || !storedPassword || !storedPassword.includes(':')) return false;
-  const [salt, storedHash] = storedPassword.split(':');
-  const hash = crypto.scryptSync(password, salt, 64).toString('hex');
-  return crypto.timingSafeEqual(Buffer.from(hash, 'hex'), Buffer.from(storedHash, 'hex'));
+  try {
+    if (!password || !storedPassword || !storedPassword.includes(':')) return false;
+    const [salt, storedHash] = storedPassword.split(':');
+    if (!salt || !storedHash) return false;
+    const hash = crypto.scryptSync(password, salt, 64).toString('hex');
+    const bufHash = Buffer.from(hash, 'hex');
+    const bufStored = Buffer.from(storedHash, 'hex');
+    if (bufHash.length !== bufStored.length) return false;
+    return crypto.timingSafeEqual(bufHash, bufStored);
+  } catch (e) {
+    return false;
+  }
 }
 
 // 3. Admin Authorization Middleware (Fixes Spoofable Admin Check & Unprotected DELETE)

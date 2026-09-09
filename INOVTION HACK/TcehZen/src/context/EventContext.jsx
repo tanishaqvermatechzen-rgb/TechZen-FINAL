@@ -126,6 +126,13 @@ export function EventProvider({ children }) {
       hostName: currentUser?.name || 'TechZen Community',
       hostAvatar: currentUser?.avatar || 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150&auto=format&fit=crop&q=80',
       hostRole: currentUser?.role || 'Community Host',
+      maxTeams: parseInt(newEventData.maxTeams) || 50,
+      deadlineDate: newEventData.deadlineDate || '',
+      prizePool: newEventData.prizePool || '',
+      bannerImage: newEventData.bannerImage || '',
+      sponsorLogo: newEventData.sponsorLogo || '',
+      tracks: newEventData.tracks || [],
+      rules: newEventData.rules || '',
       description: newEventData.description,
       tags: newEventData.tags ? (Array.isArray(newEventData.tags) ? newEventData.tags : newEventData.tags.split(',').map(t => t.trim())) : [newEventData.category],
       agenda: newEventData.agenda || [

@@ -135,7 +135,10 @@ export default function HostDashboard() {
     // 3. Build roster strictly from real registrations / submissions
     if (regList.length > 0) {
       const mapped = regList.map((reg, idx) => {
-        const sub = localSubmissions[idx] || localSubmissions[0] || {};
+        const sub = localSubmissions.find(s => 
+          (s.userProfile?.email && reg.userEmail && s.userProfile.email.toLowerCase() === reg.userEmail.toLowerCase()) ||
+          (s.leaderEmail && reg.userEmail && s.leaderEmail.toLowerCase() === reg.userEmail.toLowerCase())
+        ) || {};
         return {
           id: reg.id || `reg_${idx}`,
           ticketCode: reg.ticketCode || `TZ-${1000 + idx}`,

@@ -72,13 +72,13 @@ export default function EventDetail() {
 
   const isEnded = useMemo(() => {
     if (!displayEvent) return false;
-    return Boolean(
-      (displayEvent as any).ended === true ||
-      (displayEvent as any).isEnded === true ||
-      displayEvent.id === 'operation-cipher-2026' ||
-      displayEvent.id === 'quizverse-2026' ||
-      (displayEvent.date && !isNaN(Date.parse(displayEvent.date)) && new Date(displayEvent.date).getTime() < Date.now() - 24 * 60 * 60 * 1000)
-    );
+    if ((displayEvent as any).ended === true || (displayEvent as any).isEnded === true) return true;
+    if ((displayEvent as any).ended === false || (displayEvent as any).isEnded === false) return false;
+    if (!displayEvent.date) return false;
+    const raw = String(displayEvent.date).trim();
+    const endPart = raw.includes('-') ? raw.split('-')[1].trim() : raw;
+    const parsed = Date.parse(endPart);
+    return !isNaN(parsed) && parsed < Date.now() - 24 * 60 * 60 * 1000;
   }, [displayEvent]);
 
   // Sync selectedEventId in context when route mounts
@@ -975,6 +975,7 @@ export default function EventDetail() {
 
     const payload = {
       teamName: teamName || `${userProfile.fullName || 'Lead'}'s Squad`,
+      teamInviteCode: teamInviteCode || '',
       participantCount: processedTeammates.length,
       teammates: processedTeammates,
       userProfile,
@@ -1885,7 +1886,20 @@ export default function EventDetail() {
                             setProjectSubmission((prev) => ({ ...prev, demoUrl: e.target.value }));
                             setValidationError('');
                           }}
-                          placeholder="https://my-demo.vercel.app or YouTube"
+                          placeholder="https://demo.vercel.app or YouTube link"
+                          className="w-full bg-[#121212] border border-white/15 px-3.5 py-2.5 text-white font-mono outline-none focus:border-[#ef2635] rounded-none"
+                        />
+                      </div>
+
+                      <div>
+                        <label className="block text-white/80 mb-1.5 font-semibold">Presentation PPT / Pitch Deck Link <span className="text-white/40 font-normal">(Optional)</span></label>
+                        <input
+                          type="url"
+                          value={projectSubmission.pptUrl || ''}
+                          onChange={(e) => {
+                            setProjectSubmission((prev) => ({ ...prev, pptUrl: e.target.value }));
+                          }}
+                          placeholder="https://drive.google.com/file/d/... or Google Slides link"
                           className="w-full bg-[#121212] border border-white/15 px-3.5 py-2.5 text-white font-mono outline-none focus:border-[#ef2635] rounded-none"
                         />
                       </div>

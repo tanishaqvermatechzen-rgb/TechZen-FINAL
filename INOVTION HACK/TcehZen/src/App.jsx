@@ -1,5 +1,5 @@
 import React from 'react';
-import { Route, Switch } from 'wouter';
+import { Route, Switch, useLocation } from 'wouter';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { ClerkProvider } from '@clerk/react';
 import { GoogleOAuthProvider } from '@react-oauth/google';
@@ -38,8 +38,9 @@ function SafeClerkProvider({ children }) {
 }
 
 export default function App() {
+  const [location] = useLocation();
   return (
-    <ErrorBoundary>
+    <ErrorBoundary resetKey={location}>
       <GoogleOAuthProvider clientId={GOOGLE_CLIENT_ID}>
         <SafeClerkProvider>
           <QueryClientProvider client={queryClient}>
