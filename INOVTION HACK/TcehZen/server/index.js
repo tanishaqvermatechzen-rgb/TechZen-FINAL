@@ -1,7 +1,7 @@
 import express from 'express';
 import cors from 'cors';
 import crypto from 'crypto';
-import pool, { initDatabase } from './db.js';
+import pool, { initDatabase, isDbConfigured } from './db.js';
 import { INITIAL_EVENTS } from '../src/mockData.js';
 
 const app = express();
@@ -33,13 +33,21 @@ app.use(cors({
     if (!origin || allowedOrigins.includes(origin) || (typeof origin === 'string' && (origin.endsWith('.vercel.app') || origin.includes('techzeninnovations.vercel.app')))) {
       callback(null, true);
     } else {
-      callback(null, true);
+      callback(new Error('CORS policy: Access denied for origin'));
     }
   },
   credentials: true
 }));
 
 app.use(express.json());
+
+// Graceful 501 Degradation when DATABASE_URL is not set
+app.use('/api', (req, res, next) => {
+  if (!isDbConfigured) {
+    return res.status(501).json({ error: 'Database connection not configured. Operating in demo mode.' });
+  }
+  next();
+});
 
 // 2. Password Hashing Utilities (crypto.scryptSync)
 function hashPassword(password) {
@@ -117,7 +125,7 @@ async function seedInitialEvents() {
     `, [
       ev.id, ev.title, ev.tagline, ev.category, ev.badge, ev.date, ev.time, ev.locationType || ev.format || 'ONLINE', ev.location,
       ev.capacity || 100, maxTeamVal, allowSoloVal, ev.rsvpCount || 0, ev.coverImage || ev.imageUrl, ev.hostName, ev.hostAvatar, ev.hostRole,
-      ev.description, ev.tags || [], JSON.stringify(ev.agenda || []), JSON.stringify(ev.customQuestions || [])
+      ev.description, JSON.stringify(ev.tags || []), JSON.stringify(ev.agenda || []), JSON.stringify(ev.customQuestions || [])
     ]);
   }
   console.log('✅ Initial events seeded into Supabase!');
@@ -198,7 +206,7 @@ app.post('/api/events', verifyAdminAuth, async (req, res) => {
     `, [
       ev.id, ev.title, ev.tagline, ev.category, ev.badge || ev.category, ev.date, ev.time, ev.locationType, ev.location,
       ev.capacity || 100, maxTeamVal, allowSoloVal, maxTeamsVal, 0, ev.coverImage, ev.hostName || 'TechZen Admin', ev.hostAvatar, 'Community Admin',
-      ev.description, ev.tags || [], JSON.stringify(ev.agenda || []), JSON.stringify(ev.customQuestions || [])
+      ev.description, JSON.stringify(ev.tags || []), JSON.stringify(ev.agenda || []), JSON.stringify(ev.customQuestions || [])
     ]);
 
     res.status(201).json(mapEventRow(rows[0]));
@@ -239,7 +247,7 @@ app.post('/api/auth/signup', async (req, res) => {
     `, [
       u.id || `usr-${Date.now()}`, u.name, u.email.toLowerCase(), secureHashedPassword,
       isAdminUser ? 'Admin / Organizer' : (u.role || 'Attendee'),
-      u.bio || '', u.avatar || '', u.techStack || [], u.github || '', u.linkedin || ''
+      u.bio || '', u.avatar || '', JSON.stringify(u.techStack || []), u.github || '', u.linkedin || ''
     ]);
 
     const user = rows[0];

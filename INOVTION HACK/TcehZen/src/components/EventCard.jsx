@@ -16,7 +16,7 @@ export default function EventCard({ event }) {
     if (event.ended === false || event.isEnded === false) return false;
     if (!event.date) return false;
     const raw = String(event.date).trim();
-    const endPart = raw.includes('-') ? raw.split('-')[1].trim() : raw;
+    const endPart = /\s+[-–—]\s+/.test(raw) ? raw.split(/\s+[-–—]\s+/)[1].trim() : raw;
     const parsed = Date.parse(endPart);
     return !isNaN(parsed) && parsed < Date.now() - 24 * 60 * 60 * 1000;
   })());

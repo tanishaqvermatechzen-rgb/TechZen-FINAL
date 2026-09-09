@@ -1,15 +1,14 @@
 import pg from 'pg';
 
 const connectionString = process.env.DATABASE_URL || '';
+export const isDbConfigured = Boolean(connectionString);
 
 const pool = new pg.Pool({
-  connectionString,
-  ssl: {
-    rejectUnauthorized: false
-  },
-  max: 20,
+  connectionString: connectionString || 'postgresql://localhost:5432/postgres',
+  ssl: connectionString ? { rejectUnauthorized: false } : false,
+  max: 3,
   idleTimeoutMillis: 30000,
-  connectionTimeoutMillis: 10000
+  connectionTimeoutMillis: 5000
 });
 
 // Guard against unhandled idle connection errors & network timeouts
@@ -18,6 +17,10 @@ pool.on('error', (err) => {
 });
 
 export async function initDatabase() {
+  if (!isDbConfigured) {
+    console.warn('⚡ DATABASE_URL is not configured. Running in offline/demo fallback mode.');
+    return;
+  }
   const client = await pool.connect();
   try {
     console.log('Connecting to Supabase PostgreSQL database...');
@@ -32,7 +35,7 @@ export async function initDatabase() {
         role VARCHAR(50) DEFAULT 'Attendee',
         bio TEXT,
         avatar TEXT,
-        tech_stack TEXT[],
+        tech_stack JSONB DEFAULT '[]'::jsonb,
         github VARCHAR(255),
         linkedin VARCHAR(255),
         created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
@@ -61,7 +64,7 @@ export async function initDatabase() {
         host_avatar TEXT,
         host_role VARCHAR(255),
         description TEXT,
-        tags TEXT[],
+        tags JSONB DEFAULT '[]'::jsonb,
         agenda JSONB,
         custom_questions JSONB,
         created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP

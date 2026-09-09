@@ -76,7 +76,7 @@ export default function EventDetail() {
     if ((displayEvent as any).ended === false || (displayEvent as any).isEnded === false) return false;
     if (!displayEvent.date) return false;
     const raw = String(displayEvent.date).trim();
-    const endPart = raw.includes('-') ? raw.split('-')[1].trim() : raw;
+    const endPart = /\s+[-–—]\s+/.test(raw) ? raw.split(/\s+[-–—]\s+/)[1].trim() : raw;
     const parsed = Date.parse(endPart);
     return !isNaN(parsed) && parsed < Date.now() - 24 * 60 * 60 * 1000;
   }, [displayEvent]);
@@ -754,7 +754,7 @@ export default function EventDetail() {
       // Step 1: Look up team details in database by code
       const res = await fetch(`/api/teams/${code}`);
       if (!res.ok) {
-        const errData = await res.json();
+        const errData = await res.json().catch(() => ({}));
         const msg = errData.error || 'Team Code non-existent or expired. Please check the code.';
         setValidationError(`❌ ${msg}`);
         if (showToast) showToast(`⚠️ ${msg}`, 'error');
@@ -968,9 +968,9 @@ export default function EventDetail() {
     }
 
     const processedTeammates = teammates.map((t, idx) => {
-      if (idx === 0) return { ...t, role: 'Team Lead / Admin' };
-      const finalRole = t.role === 'Others (Type Custom Role)' ? (t.customRole?.trim() || 'Team Member') : t.role;
-      return { ...t, role: finalRole };
+      if (idx === 0) return { ...t, name: t.name?.trim() || '', email: t.email?.trim() || '', role: 'Team Lead / Admin' };
+      const finalRole = t.role === 'Others (Type Custom Role)' ? (t.customRole?.trim() || 'Team Member') : (t.role || 'Team Member');
+      return { ...t, name: t.name?.trim() || '', email: t.email?.trim() || '', role: finalRole };
     });
 
     const payload = {
