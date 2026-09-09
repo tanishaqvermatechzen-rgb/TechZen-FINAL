@@ -34,13 +34,16 @@ export default function EventCard({ event }) {
     setTimeout(() => setCopied(false), 2500);
   };
 
+  const CardWrapper = isEnded ? 'div' : Link;
+  const cardProps = isEnded ? {
+    className: 'group tech-card relative rounded-lg overflow-hidden flex flex-col md:flex-row cursor-not-allowed select-none opacity-75 border border-white/10 block'
+  } : {
+    href: `/events/${event.id}`,
+    className: 'group tech-card relative rounded-lg overflow-hidden flex flex-col md:flex-row cursor-pointer transition-all duration-300 border border-white/10 hover:border-red-500/60 block'
+  };
+
   return (
-    <Link
-      href={`/events/${event.id}`}
-      className={`group tech-card relative rounded-lg overflow-hidden flex flex-col md:flex-row cursor-pointer transition-all duration-300 border border-white/10 hover:border-red-500/60 block ${
-        isEnded ? 'opacity-75' : ''
-      }`}
-    >
+    <CardWrapper {...cardProps}>
       {/* 30-Degree Inclined 'EVENT ENDED' Rectangular Stamp */}
       {isEnded && (
         <div className="absolute inset-0 z-30 pointer-events-none flex items-center justify-center overflow-hidden">
@@ -120,6 +123,6 @@ export default function EventCard({ event }) {
 
       </div>
 
-    </Link>
+    </CardWrapper>
   );
 }

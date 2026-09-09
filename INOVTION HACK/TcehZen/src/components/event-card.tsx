@@ -25,14 +25,21 @@ export function EventCard({ event, featured = false }: { event: any; featured?: 
     ? 'QUIZ' 
     : (event.category || event.badge || 'HACKATHON');
 
+  const CardWrapper = isEnded ? 'div' : Link;
+  const cardProps = isEnded ? {
+    className: `group relative block overflow-hidden border border-white/10 bg-[#0a0a0a] opacity-75 cursor-not-allowed select-none ${
+      featured ? 'md:col-span-2 md:grid md:grid-cols-[1.1fr_.9fr]' : ''
+    }`
+  } : {
+    href: `/events/${event.id}`,
+    'data-testid': `card-event-${event.id}`,
+    className: `group focus-ring relative block overflow-hidden border border-white/10 bg-[#0a0a0a] transition-all duration-500 hover:-translate-y-1 hover:border-[#ef2635]/70 ${
+      featured ? 'md:col-span-2 md:grid md:grid-cols-[1.1fr_.9fr]' : ''
+    }`
+  };
+
   return (
-    <Link
-      href={`/events/${event.id}`}
-      data-testid={`card-event-${event.id}`}
-      className={`group focus-ring relative block overflow-hidden border border-white/10 bg-[#0a0a0a] transition-all duration-500 hover:-translate-y-1 hover:border-[#ef2635]/70 ${
-        featured ? 'md:col-span-2 md:grid md:grid-cols-[1.1fr_.9fr]' : ''
-      }`}
-    >
+    <CardWrapper {...(cardProps as any)}>
       {/* 30-Degree Inclined 'EVENT ENDED' Rectangular Stamp */}
       {isEnded && (
         <div className="absolute inset-0 z-30 pointer-events-none flex items-center justify-center overflow-hidden">
@@ -102,7 +109,7 @@ export function EventCard({ event, featured = false }: { event: any; featured?: 
           </span>
         </div>
       </div>
-    </Link>
+    </CardWrapper>
   );
 }
 

@@ -215,25 +215,53 @@ export default function CreateEventModal() {
 
                 <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
                   <div>
-                    <label className="block text-white/70 mb-1 font-semibold">Event Dates *</label>
+                    <label className="block text-white/70 mb-1 font-semibold">Start Date (Select on Calendar) *</label>
+                    <input
+                      type="date"
+                      required
+                      min={new Date().toISOString().split('T')[0]}
+                      value={date.includes('-') ? (date.split(' - ')[0].includes(',') ? new Date(date.split(' - ')[0]).toISOString().split('T')[0] : '') : (date.includes(',') ? new Date(date).toISOString().split('T')[0] : '')}
+                      onChange={(e) => {
+                        const val = e.target.value;
+                        if (val) {
+                          const formatted = new Date(val).toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' });
+                          setDate(formatted);
+                        } else {
+                          setDate(e.target.value);
+                        }
+                      }}
+                      className="w-full bg-black/60 border border-white/15 px-3.5 py-2 text-white font-mono cursor-pointer"
+                    />
                     <input
                       type="text"
                       required
                       placeholder="e.g. June 29 - July 20, 2026"
                       value={date}
                       onChange={(e) => setDate(e.target.value)}
-                      className="w-full bg-black/60 border border-white/15 px-3.5 py-2 text-white"
+                      className="w-full bg-black/60 border border-white/15 px-3.5 py-1.5 mt-1 text-white text-[11px]"
                     />
                   </div>
 
                   <div>
-                    <label className="block text-white/70 mb-1 font-semibold">Registration Deadline</label>
+                    <label className="block text-white/70 mb-1 font-semibold">Registration Deadline *</label>
+                    <input
+                      type="date"
+                      min={new Date().toISOString().split('T')[0]}
+                      onChange={(e) => {
+                        const val = e.target.value;
+                        if (val) {
+                          const formatted = new Date(val).toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' });
+                          setDeadlineDate(formatted);
+                        }
+                      }}
+                      className="w-full bg-black/60 border border-white/15 px-3.5 py-2 text-white font-mono cursor-pointer"
+                    />
                     <input
                       type="text"
                       placeholder="e.g. June 28, 2026"
                       value={deadlineDate}
                       onChange={(e) => setDeadlineDate(e.target.value)}
-                      className="w-full bg-black/60 border border-white/15 px-3.5 py-2 text-white"
+                      className="w-full bg-black/60 border border-white/15 px-3.5 py-1.5 mt-1 text-white text-[11px]"
                     />
                   </div>
 

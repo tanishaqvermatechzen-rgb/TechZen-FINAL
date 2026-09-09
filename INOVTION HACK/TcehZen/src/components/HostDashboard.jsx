@@ -537,34 +537,15 @@ export default function HostDashboard() {
                                 onClick={() => setExpandedAttendeeId(isExpanded ? null : item.id)}
                                 className="px-3.5 py-1.5 rounded bg-black/40 border border-white/15 text-white/70 hover:text-white font-mono text-xs flex items-center gap-1.5 transition cursor-pointer"
                               >
-                                <span>{isExpanded ? 'Hide Details' : 'View Full Details & PPT'}</span>
+                                <span>{isExpanded ? 'Hide Details' : 'View Full Details'}</span>
                                 {isExpanded ? <ChevronUp size={14} /> : <ChevronDown size={14} />}
                               </button>
                             </div>
                           </div>
 
-                          {/* Quick Badges for PPT & GitHub */}
+                          {/* Quick Badges for GitHub */}
                           {item.project && !isQuiz && (
                             <div className="flex flex-wrap items-center gap-2 pt-2 border-t border-white/10 font-mono text-xs">
-                              {item.project.pptUrl && (
-                                <a
-                                  href={item.project.pptUrl}
-                                  target="_blank"
-                                  rel="noreferrer"
-                                  className="inline-flex items-center gap-1.5 bg-[#ef2635]/15 hover:bg-[#ef2635]/30 text-[#ef2635] border border-[#ef2635]/40 px-3 py-1 rounded font-bold transition"
-                                >
-                                  <FileText size={14} />
-                                  <span>Presentation PPT Link</span>
-                                  <ExternalLink size={12} />
-                                </a>
-                              )}
-
-                              {item.project.pptFileName && (
-                                <span className="inline-flex items-center gap-1.5 bg-purple-950/60 text-purple-300 border border-purple-800 px-3 py-1 rounded">
-                                  <FileText size={14} />
-                                  <span>Attached: {item.project.pptFileName}</span>
-                                </span>
-                              )}
 
                               {item.project.repoUrl && (
                                 <a
@@ -624,27 +605,6 @@ export default function HostDashboard() {
                                     <div>
                                       <span className="text-white/40 block">Project Title:</span>
                                       <span className="text-white font-bold text-sm">{item.project.title || 'N/A'}</span>
-                                    </div>
-
-                                    {/* PPT Presentation URL & Direct Copy */}
-                                    <div>
-                                      <span className="text-white/40 block">Presentation PPT / Pitch Deck Link:</span>
-                                      {item.project.pptUrl ? (
-                                        <div className="flex items-center gap-2 mt-1">
-                                          <a href={item.project.pptUrl} target="_blank" rel="noreferrer" className="text-[#ef2635] font-bold underline truncate">
-                                            {item.project.pptUrl}
-                                          </a>
-                                          <button
-                                            type="button"
-                                            onClick={() => copyToClipboard(item.project.pptUrl, 'PPT Link')}
-                                            className="p-1 bg-white/10 hover:bg-white/20 text-white rounded cursor-pointer shrink-0"
-                                          >
-                                            {copiedLink === item.project.pptUrl ? <Check size={13} className="text-emerald-400" /> : <Copy size={13} />}
-                                          </button>
-                                        </div>
-                                      ) : (
-                                        <span className="text-white/40 italic">No PPT link submitted</span>
-                                      )}
                                     </div>
 
                                     {/* GitHub Repo */}

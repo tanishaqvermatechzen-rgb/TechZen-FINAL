@@ -70,6 +70,17 @@ export default function EventDetail() {
            (displayEvent.title || '').toLowerCase().includes('quiz');
   }, [displayEvent]);
 
+  const isEnded = useMemo(() => {
+    if (!displayEvent) return false;
+    return Boolean(
+      (displayEvent as any).ended === true ||
+      (displayEvent as any).isEnded === true ||
+      displayEvent.id === 'operation-cipher-2026' ||
+      displayEvent.id === 'quizverse-2026' ||
+      (displayEvent.date && !isNaN(Date.parse(displayEvent.date)) && new Date(displayEvent.date).getTime() < Date.now() - 24 * 60 * 60 * 1000)
+    );
+  }, [displayEvent]);
+
   // Sync selectedEventId in context when route mounts
   useEffect(() => {
     if (rawId) {
@@ -939,10 +950,6 @@ export default function EventDetail() {
       setValidationError('⚠️ Project Title is compulsory!');
       return;
     }
-    if (!projectSubmission.pptUrl.trim()) {
-      setValidationError('⚠️ Presentation PPT / Pitch Deck Link is compulsory! Please make sure your Google Drive link is set to Public View ("Anyone with the link can view").');
-      return;
-    }
     if (!projectSubmission.repoUrl.trim()) {
       setValidationError('⚠️ GitHub Repository URL is compulsory!');
       return;
@@ -984,6 +991,34 @@ export default function EventDetail() {
     if (showToast) showToast('🎉 All project & presentation details submitted!');
     setTimeout(() => setSavedStatus(''), 4000);
   };
+
+  if (isEnded) {
+    return (
+      <SiteShell>
+        <div className="min-h-[70vh] flex flex-col items-center justify-center p-6 text-center">
+          <div className="max-w-md w-full bg-[#0c0c0f] border border-[#ef2635]/40 rounded-2xl p-8 shadow-[0_0_50px_rgba(239,38,53,0.2)] space-y-6">
+            <div className="w-16 h-16 rounded-full bg-[#ef2635]/10 border border-[#ef2635] flex items-center justify-center mx-auto text-[#ef2635]">
+              <ShieldCheck size={32} />
+            </div>
+            <div>
+              <div className="text-xs font-mono font-bold text-[#ef2635] tracking-widest uppercase mb-1">
+                STATUS: EVENT EXPIRED
+              </div>
+              <h1 className="text-2xl font-bold text-white uppercase font-mono">{displayEvent.title}</h1>
+              <p className="text-xs text-white/60 mt-3 leading-relaxed">
+                This event has concluded and registration is now closed. Access to details and submissions for past events is no longer available.
+              </p>
+            </div>
+            <div className="pt-2">
+              <Link href="/all-events" className="inline-flex items-center justify-center gap-2 w-full bg-[#ef2635] hover:bg-[#d01e2b] text-white font-mono text-xs font-bold uppercase tracking-wider py-3 px-6 rounded-lg transition-all shadow-lg">
+                <ArrowLeft size={16} /> BROWSE ACTIVE EVENTS
+              </Link>
+            </div>
+          </div>
+        </div>
+      </SiteShell>
+    );
+  }
 
   return (
     <SiteShell>
@@ -1822,41 +1857,6 @@ export default function EventDetail() {
                         placeholder="e.g. CipherGuard Fraud Detection System"
                         className="w-full bg-[#121212] border border-white/15 px-3.5 py-2.5 text-white font-mono outline-none focus:border-[#ef2635] rounded-none"
                       />
-                    </div>
-
-                    {/* PPT Presentation Google Drive / Deck Link Box */}
-                    <div className="p-5 border border-white/10 bg-[#121212] rounded-none space-y-3">
-                      <div className="flex items-center gap-2 text-sm font-mono font-bold text-[#ef2635]">
-                        <FileText size={18} />
-                        <span>PRESENTATION PPT / PITCH DECK DRIVE LINK <span className="text-[#ef2635] font-bold">*</span></span>
-                      </div>
-
-                      <div className="space-y-3">
-                        <div>
-                          <label className="block text-white/80 mb-1.5 font-semibold text-xs">
-                            PPT / Pitch Deck URL (Google Drive, Google Slides, Canva, Drive Link) <span className="text-[#ef2635] font-bold">*</span>
-                          </label>
-                          <input
-                            type="url"
-                            required
-                            value={projectSubmission.pptUrl}
-                            onChange={(e) => {
-                              setProjectSubmission((prev) => ({ ...prev, pptUrl: e.target.value }));
-                              setValidationError('');
-                            }}
-                            placeholder="https://drive.google.com/file/d/... or https://docs.google.com/presentation/d/..."
-                            className="w-full bg-[#181818] border border-white/15 px-3.5 py-2.5 text-white font-mono text-xs outline-none focus:border-[#ef2635] rounded-none"
-                          />
-                        </div>
-
-                        {/* Public View Permission Notice */}
-                        <div className="p-3.5 bg-amber-950/40 border border-amber-500/40 text-amber-200 font-mono text-[11px] flex items-start gap-2.5 leading-relaxed shadow-sm">
-                          <span className="text-amber-400 text-base font-bold shrink-0 leading-none">⚠️</span>
-                          <span>
-                            <strong className="text-amber-300 font-bold uppercase tracking-wider">Public View Permission Notice:</strong> Please ensure your Google Drive or Slides link access permissions are set to <strong className="text-white underline font-bold">"Anyone with the link can view" (Public Access)</strong> before submitting, so that the jury evaluation panel can open and assess your deck seamlessly.
-                          </span>
-                        </div>
-                      </div>
                     </div>
 
                     <div className="grid gap-4 sm:grid-cols-2">
