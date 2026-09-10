@@ -46,7 +46,12 @@ app.use('/api', (req, res, next) => {
   if (!isDbConfigured) {
     return res.status(501).json({ error: 'Database connection not configured. Operating in demo mode.' });
   }
-  next();
+  // On a cold serverless start the schema may not exist yet. Wait for the
+  // one-time bootstrap so queries cannot race ahead of CREATE TABLE. A failed
+  // bootstrap still falls through: the tables may already be present and only
+  // the seed failed, and each route reports its own error rather than taking
+  // the whole API down.
+  ensureDatabaseReady().then(() => next(), () => next());
 });
 
 // 2. Password Hashing Utilities (crypto.scryptSync)
@@ -89,7 +94,10 @@ function verifyAdminAuth(req, res, next) {
   next();
 }
 
-// Seed default events into database (always ensures INITIAL_EVENTS exist in DB)
+// Creates the demo events the first time only. This runs on every cold start,
+// so it must never overwrite an existing row: the previous ON CONFLICT DO UPDATE
+// reset these events to their hardcoded mockData values on each boot, discarding
+// real rsvp_count totals and any admin edit to the title, date or capacity.
 async function seedInitialEvents() {
   console.log('Seeding initial events into Supabase PostgreSQL...');
   for (const ev of INITIAL_EVENTS) {
@@ -101,27 +109,7 @@ async function seedInitialEvents() {
         capacity, max_team_size, allow_solo, rsvp_count, cover_image, host_name, host_avatar, host_role,
         description, tags, agenda, custom_questions
       ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19, $20, $21)
-      ON CONFLICT (id) DO UPDATE SET
-        title = EXCLUDED.title,
-        tagline = EXCLUDED.tagline,
-        category = EXCLUDED.category,
-        badge = EXCLUDED.badge,
-        date = EXCLUDED.date,
-        time = EXCLUDED.time,
-        location_type = EXCLUDED.location_type,
-        location = EXCLUDED.location,
-        capacity = EXCLUDED.capacity,
-        max_team_size = EXCLUDED.max_team_size,
-        allow_solo = EXCLUDED.allow_solo,
-        rsvp_count = EXCLUDED.rsvp_count,
-        cover_image = EXCLUDED.cover_image,
-        host_name = EXCLUDED.host_name,
-        host_avatar = EXCLUDED.host_avatar,
-        host_role = EXCLUDED.host_role,
-        description = EXCLUDED.description,
-        tags = EXCLUDED.tags,
-        agenda = EXCLUDED.agenda,
-        custom_questions = EXCLUDED.custom_questions;
+      ON CONFLICT (id) DO NOTHING;
     `, [
       ev.id, ev.title, ev.tagline, ev.category, ev.badge, ev.date, ev.time, ev.locationType || ev.format || 'ONLINE', ev.location,
       ev.capacity || 100, maxTeamVal, allowSoloVal, ev.rsvpCount || 0, ev.coverImage || ev.imageUrl, ev.hostName, ev.hostAvatar, ev.hostRole,
@@ -131,10 +119,36 @@ async function seedInitialEvents() {
   console.log('✅ Initial events seeded into Supabase!');
 }
 
-// Initialize database tables & seed
-initDatabase().then(() => {
-  seedInitialEvents();
-}).catch(console.error);
+// Bootstrap (schema + seed) is memoised per process rather than fired at import
+// time. On a serverless host the previous form was fatal: seedInitialEvents()
+// was called without being returned, so its rejection escaped the .catch() and
+// Node aborted the process on the unhandled rejection — every /api request then
+// failed with FUNCTION_INVOCATION_FAILED. It also ran when isDbConfigured was
+// false, crashing the demo mode initDatabase() deliberately bails out of.
+let bootstrapPromise = null;
+
+function ensureDatabaseReady() {
+  if (!isDbConfigured) return Promise.resolve(false);
+  if (!bootstrapPromise) {
+    bootstrapPromise = initDatabase()
+      .then(() => seedInitialEvents())
+      .then(() => true)
+      .catch((err) => {
+        console.error('Database bootstrap failed:', err);
+        // Let a later invocation retry instead of pinning the failure for the
+        // lifetime of the container.
+        bootstrapPromise = null;
+        return false;
+      });
+  }
+  return bootstrapPromise;
+}
+
+// A long-lived server can warm the schema immediately; the rejection path is
+// already handled inside ensureDatabaseReady, so nothing can escape here.
+if (!process.env.VERCEL) {
+  ensureDatabaseReady();
+}
 
 function mapEventRow(row) {
   return {

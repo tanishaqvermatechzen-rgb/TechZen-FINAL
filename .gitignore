@@ -3,3 +3,8 @@
 .vscode/c_cpp_properties.json
 .vscode/launch.json
 .vscode/ipch
+
+# Never commit real credentials (use the host's environment variables)
+.env
+.env.*
+!.env.example
