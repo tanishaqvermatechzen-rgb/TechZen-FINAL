@@ -6,34 +6,6 @@ export const CATEGORIES = [
 
 export const INITIAL_EVENTS = [
   {
-    id: 'event-1788625391659',
-    title: 'wef',
-    tagline: 'Community event hosted on TechZen',
-    category: 'HACKATHON',
-    badge: 'LIVE HACKATHON',
-    format: 'ONLINE',
-    locationType: 'ONLINE',
-    location: 'TechZen Platform / Online Stream',
-    date: 'June 29 - July 20, 2026',
-    time: '18:30 - 21:30 IST',
-    capacity: 100,
-    rsvpCount: 1,
-    registeredCount: 1,
-    ended: false,
-    coverImage: '/operation-cipher.png',
-    imageUrl: '/operation-cipher.png',
-    hostName: 'Tanishaq Verma Techzen',
-    hostAvatar: 'https://lh3.googleusercontent.com/a/ACg8ocLlnKOcl-oxirLpjfa_8KcUsyX1BFvg47IExOnV6WnCzZOhNg=s96-c',
-    hostRole: 'Community Admin',
-    description: 'wef',
-    tags: ['Hackathon', 'Code', 'Prizes'],
-    featured: true,
-    agenda: [
-      { time: 'Start', title: 'Registration & Coffee', speaker: 'Host' },
-      { time: 'Keynote', title: 'wef', speaker: 'Speaker' }
-    ]
-  },
-  {
     id: 'operation-cipher-2026',
     title: 'Operation Cipher 2026',
     tagline: 'A Money Heist Themed National Level Hackathon. Code. Plan. Execute. Escape.',
@@ -130,49 +102,5 @@ ARE YOU READY? JOIN. COMPETE. WIN.`,
   }
 ];
 
-export const INITIAL_REGISTRATIONS = [
-  {
-    id: 'reg-1788680773170',
-    eventId: 'event-1788625391659',
-    userId: 'usr-acadamex@gmail.com',
-    userName: 'Acadamex',
-    userEmail: 'acadamex@gmail.com',
-    ticketCode: 'TZ-WEF-781920',
-    answers: { teamName: 'SIH', teamRole: 'Product Manager', inviteCode: 'TZ-EVENT-237T5134' },
-    checkedIn: false,
-    registeredAt: '2026-09-06T02:16:13.000Z'
-  },
-  {
-    id: 'reg-1788680773171',
-    eventId: 'event-1788625391659',
-    userId: 'usr-237tanishaqverma@gmail.com',
-    userName: 'Tanishaq Verma',
-    userEmail: '237tanishaqverma@gmail.com',
-    ticketCode: 'TZ-WEF-237190',
-    answers: { teamName: 'SIH', teamRole: 'Team Lead / Admin', inviteCode: 'TZ-EVENT-237T5134' },
-    checkedIn: false,
-    registeredAt: '2026-09-06T02:16:15.000Z'
-  },
-  {
-    id: 'reg-1788680773172',
-    eventId: 'event-1788625391659',
-    userId: 'usr-tanishaqvermatechzen@gmail.com',
-    userName: 'Tanishaq Verma (TechZen)',
-    userEmail: 'tanishaqvermatechzen@gmail.com',
-    ticketCode: 'TZ-WEF-994120',
-    answers: { teamName: 'SIH', teamRole: 'Community Admin', inviteCode: 'TZ-EVENT-237T5134' },
-    checkedIn: false,
-    registeredAt: '2026-09-06T02:16:18.000Z'
-  },
-  {
-    id: 'reg-1788680773173',
-    eventId: 'event-1788625391659',
-    userId: 'usr-t2109052@gmail.com',
-    userName: 'T2109052',
-    userEmail: 't2109052@gmail.com',
-    ticketCode: 'TZ-WEF-501294',
-    answers: { teamName: 'SIH', teamRole: 'Hardware Lead', inviteCode: 'TZ-EVENT-237T5134' },
-    checkedIn: false,
-    registeredAt: '2026-09-06T02:16:20.000Z'
-  }
-];
+export const INITIAL_REGISTRATIONS = [];
+
