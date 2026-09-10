@@ -30,4 +30,9 @@ dist-ssr
 # Environment & local credentials
 .env
 .env.*
+#.env.*
 !.env.example
+
+# Local archives and submodules
+TechZen_Git_Ready*
+
