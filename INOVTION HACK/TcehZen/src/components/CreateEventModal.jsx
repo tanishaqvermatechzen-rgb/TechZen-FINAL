@@ -44,6 +44,30 @@ export default function CreateEventModal() {
 
   if (!createEventModalOpen) return null;
 
+  // The free-text field beside each calendar accepts anything ("TBA, soon",
+  // "Round 1, Phase-2"). Date.toISOString() throws RangeError on an unparseable
+  // value, and thrown mid-render that takes the whole page down, so an
+  // unreadable date has to degrade to an empty calendar instead.
+  const toDateInputValue = (value) => {
+    if (!value) return '';
+    const raw = String(value).trim();
+    // A range ("June 29 - July 20, 2026") is anchored on its start, but the year
+    // usually sits on the end half only — without it Date would silently assume
+    // 2001 rather than 2026.
+    let start = raw.split(' - ')[0].trim();
+    const year = raw.match(/\b(\d{4})\b/);
+    if (!/\b\d{4}\b/.test(start) && year) start = `${start}, ${year[1]}`;
+
+    const parsed = new Date(start);
+    if (Number.isNaN(parsed.getTime())) return '';
+    // Read back in local time: toISOString would shift the day across the
+    // UTC boundary for anyone east or west of Greenwich.
+    const pad = (n) => String(n).padStart(2, '0');
+    return `${parsed.getFullYear()}-${pad(parsed.getMonth() + 1)}-${pad(parsed.getDate())}`;
+  };
+
+  const todayInputValue = new Date().toISOString().split('T')[0];
+
   const handleLocationTypeChange = (newType) => {
     setLocationType(newType);
     if (newType === 'ONLINE') {
@@ -219,8 +243,8 @@ export default function CreateEventModal() {
                     <input
                       type="date"
                       required
-                      min={new Date().toISOString().split('T')[0]}
-                      value={date.includes('-') ? (date.split(' - ')[0].includes(',') ? new Date(date.split(' - ')[0]).toISOString().split('T')[0] : '') : (date.includes(',') ? new Date(date).toISOString().split('T')[0] : '')}
+                      min={todayInputValue}
+                      value={toDateInputValue(date)}
                       onChange={(e) => {
                         const val = e.target.value;
                         if (val) {
@@ -246,12 +270,15 @@ export default function CreateEventModal() {
                     <label className="block text-white/70 mb-1 font-semibold">Registration Deadline *</label>
                     <input
                       type="date"
-                      min={new Date().toISOString().split('T')[0]}
+                      min={todayInputValue}
+                      value={toDateInputValue(deadlineDate)}
                       onChange={(e) => {
                         const val = e.target.value;
                         if (val) {
                           const formatted = new Date(val).toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' });
                           setDeadlineDate(formatted);
+                        } else {
+                          setDeadlineDate('');
                         }
                       }}
                       className="w-full bg-black/60 border border-white/15 px-3.5 py-2 text-white font-mono cursor-pointer"

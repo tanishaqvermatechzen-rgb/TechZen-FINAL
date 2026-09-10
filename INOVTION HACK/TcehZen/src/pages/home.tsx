@@ -1,10 +1,10 @@
-import { ArrowDownRight, ArrowRight, ArrowUpRight, CheckCircle2, Code2, Cpu, Globe, Instagram, Layers3, MessageCircle, Radio, ShieldCheck, Users, Zap } from 'lucide-react';
+import { ArrowDownRight, ArrowRight, ArrowUpRight, CheckCircle2, Code2, Cpu, Globe, Instagram, Layers3, MessageCircle, Radio, Users, Zap } from 'lucide-react';
 import { useState } from 'react';
 import { Link } from 'wouter';
 import { useSafeUser as useUser } from '@/lib/clerk-safe';
-import { EventCard, EventSkeleton } from '@/components/event-card';
+import { EventCard } from '@/components/event-card.tsx';
 import { SiteShell } from '@/components/site-shell';
-import { INITIAL_EVENTS, CATEGORIES } from '@/mockData';
+import { INITIAL_EVENTS } from '@/mockData';
 import { useEvents } from '@/context/EventContext';
 import { useAuth } from '@/context/AuthContext';
 

@@ -64,6 +64,12 @@ export async function initDatabase() {
         host_avatar TEXT,
         host_role VARCHAR(255),
         description TEXT,
+        deadline_date VARCHAR(100),
+        prize_pool TEXT,
+        banner_image TEXT,
+        sponsor_logo TEXT,
+        rules TEXT,
+        tracks JSONB DEFAULT '[]'::jsonb,
         tags JSONB DEFAULT '[]'::jsonb,
         agenda JSONB,
         custom_questions JSONB,
@@ -76,6 +82,12 @@ export async function initDatabase() {
       ALTER TABLE events ADD COLUMN IF NOT EXISTS allow_solo BOOLEAN DEFAULT TRUE;
       ALTER TABLE events ADD COLUMN IF NOT EXISTS max_team_size INTEGER DEFAULT 4;
       ALTER TABLE events ADD COLUMN IF NOT EXISTS max_teams INTEGER DEFAULT 50;
+      ALTER TABLE events ADD COLUMN IF NOT EXISTS deadline_date VARCHAR(100);
+      ALTER TABLE events ADD COLUMN IF NOT EXISTS prize_pool TEXT;
+      ALTER TABLE events ADD COLUMN IF NOT EXISTS banner_image TEXT;
+      ALTER TABLE events ADD COLUMN IF NOT EXISTS sponsor_logo TEXT;
+      ALTER TABLE events ADD COLUMN IF NOT EXISTS rules TEXT;
+      ALTER TABLE events ADD COLUMN IF NOT EXISTS tracks JSONB DEFAULT '[]'::jsonb;
     `);
 
     // Registrations table

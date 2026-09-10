@@ -117,11 +117,12 @@ export function useGetMySummary() {
 }
 
 export function useListMyRegistrations() {
-  const { data: events } = useListEvents();
   const [registrations, setRegistrations] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
 
   useEffect(() => {
+    let isMounted = true;
+
     async function fetchRegs() {
       setIsLoading(true);
       try {
@@ -131,36 +132,29 @@ export function useListMyRegistrations() {
           const u = JSON.parse(savedUserStr);
           email = u?.email || '';
         }
-        if (email) {
-          const res = await fetch(`/api/registrations?email=${encodeURIComponent(email)}`, {
-            headers: { 'x-user-email': email }
-          });
-          if (res.ok) {
-            const data = await res.json();
-            if (Array.isArray(data) && data.length > 0) {
-              setRegistrations(data);
-              return;
-            }
-          }
+        if (!email) return;
+
+        const res = await fetch(`/api/registrations?email=${encodeURIComponent(email)}`, {
+          headers: { 'x-user-email': email }
+        });
+        if (res.ok) {
+          const data = await res.json();
+          // No registrations is a real answer. Inventing entries from the event
+          // list here used to show people tickets they never booked.
+          if (isMounted && Array.isArray(data)) setRegistrations(data);
         }
       } catch (e) {
         console.warn('Failed to fetch user registrations:', e);
       } finally {
-        setIsLoading(false);
-      }
-
-      // Fallback
-      if (events) {
-        setRegistrations(events.slice(0, 2).map((e, idx) => ({
-          id: `reg-${idx + 1}`,
-          eventId: e.id,
-          event: e,
-          registeredAt: new Date().toISOString()
-        })));
+        if (isMounted) setIsLoading(false);
       }
     }
+
     fetchRegs();
-  }, [events]);
+    return () => {
+      isMounted = false;
+    };
+  }, []);
 
   return {
     data: registrations,

@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useState, useEffect, useRef } from 'react';
+import React, { createContext, useContext, useState, useEffect, useRef, useCallback } from 'react';
 import { INITIAL_EVENTS, INITIAL_REGISTRATIONS } from '../mockData';
 import { useAuth } from './AuthContext';
 import confetti from 'canvas-confetti';
@@ -260,18 +260,22 @@ export function EventProvider({ children }) {
     }
   };
 
-  const isUserRegistered = (eventId, userId) => {
+  // Memoised so they keep a stable identity across provider renders: consumers
+  // list these in effect dependency arrays (HostDashboard rebuilds its whole
+  // roster from one), and a fresh function each render re-fires that work on
+  // every unrelated context change.
+  const isUserRegistered = useCallback((eventId, userId) => {
     if (!userId) return false;
     return registrations.some(r => r.eventId === eventId && r.userId === userId);
-  };
+  }, [registrations]);
 
-  const getUserRegistrations = (userId) => {
+  const getUserRegistrations = useCallback((userId) => {
     return registrations.filter(r => r.userId === userId);
-  };
+  }, [registrations]);
 
-  const getEventRegistrations = (eventId) => {
+  const getEventRegistrations = useCallback((eventId) => {
     return registrations.filter(r => r.eventId === eventId);
-  };
+  }, [registrations]);
 
   // Parses the free-form `date` strings used across TechZen events
   // ("May 12, 2026", "June 29 - July 20, 2026", "2026-06-29") into a real Date.

@@ -324,7 +324,9 @@ export default function EventDetail() {
 
     let eventSource: EventSource | null = null;
     try {
-      const url = `/api/teams/stream?eventId=${encodeURIComponent(rawId)}&inviteCode=${encodeURIComponent(teamInviteCode || '')}`;
+      // userEmail lets the server scope the broadcast to this team's own members
+      // instead of fanning every roster out to every listener.
+      const url = `/api/teams/stream?eventId=${encodeURIComponent(rawId)}&inviteCode=${encodeURIComponent(teamInviteCode || '')}&userEmail=${encodeURIComponent(activeUserEmail || '')}`;
       eventSource = new EventSource(url);
 
       eventSource.onmessage = (event) => {
@@ -896,6 +898,10 @@ export default function EventDetail() {
         const res = await fetch(`/api/teams/${targetInviteCode}`);
         if (res.ok) {
           const teamData = await res.json();
+          // phone is required by handleFinalSubmitJoinTeam; omitting it here left
+          // this path permanently failing its own validation. Seed it (and the
+          // other fields) from saved defaults, as the join-by-code path does.
+          const defaults = getSavedProfileDefaults();
           setJoinModal({
             isOpen: true,
             step: 'confirm',
@@ -903,9 +909,10 @@ export default function EventDetail() {
             teamName: teamData.teamName || 'Team',
             leaderName: teamData.leaderName || 'Team Leader',
             leaderEmail: teamData.leaderEmail || 'leader@gmail.com',
-            role: '',
-            customRole: '',
-            college: userProfile.college || '',
+            role: defaults.role || '',
+            customRole: defaults.customRole || '',
+            college: userProfile.college || defaults.college || '',
+            phone: userProfile.phone || defaults.phone || '',
             isSubmitting: false
           });
           return;

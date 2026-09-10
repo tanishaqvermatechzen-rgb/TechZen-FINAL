@@ -2,7 +2,7 @@ import { useState, useMemo } from 'react';
 import { Link } from 'wouter';
 import { ArrowLeft, Radio, Search } from 'lucide-react';
 import { useListEvents } from '@workspace/api-client-react';
-import { EventCard, EventSkeleton } from '@/components/event-card';
+import { EventCard, EventSkeleton } from '@/components/event-card.tsx';
 import { SiteShell } from '@/components/site-shell';
 
 const filters = ['All', 'Hackathon', 'Quiz'];

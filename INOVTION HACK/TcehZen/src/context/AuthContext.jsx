@@ -94,10 +94,15 @@ export function AuthProvider({ children }) {
         return { success: false, error: data.error || 'Invalid email or password.' };
       }
     } catch (e) {
-      console.warn('API connection offline, using client auth state:', e);
+      // A thrown fetch is a network/CORS failure, not a missing endpoint: a
+      // static host answers with its HTML shell and is caught by
+      // isEndpointMissing above. Signing someone in on an unreachable server
+      // would make a dropped connection look like a successful login.
+      console.error('Could not reach the auth server:', e);
+      return { success: false, error: 'Could not reach the sign-in server. Check your connection and try again.' };
     }
 
-    const formattedName = nameOverride || (isUserAdmin 
+    const formattedName = nameOverride || (isUserAdmin
       ? getAdminDefaultName(cleanEmail) 
       : cleanEmail.split('@')[0].replace('.', ' ').replace(/^./, str => str.toUpperCase()));
 
@@ -157,7 +162,10 @@ export function AuthProvider({ children }) {
         return { success: false, error: data.error || 'Could not create that account.' };
       }
     } catch (e) {
-      console.warn('API connection offline, using client signup state:', e);
+      // Same rule as login: only a genuinely absent endpoint may fall through
+      // to the local demo account.
+      console.error('Could not reach the signup server:', e);
+      return { success: false, error: 'Could not reach the sign-up server. Check your connection and try again.' };
     }
 
     setCurrentUser(newUser);

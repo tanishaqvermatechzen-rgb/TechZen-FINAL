@@ -157,6 +157,12 @@ function mapEventRow(row) {
     hostAvatar: row.host_avatar,
     hostRole: row.host_role,
     description: row.description,
+    deadlineDate: row.deadline_date || '',
+    prizePool: row.prize_pool || '',
+    bannerImage: row.banner_image || '',
+    sponsorLogo: row.sponsor_logo || '',
+    rules: row.rules || '',
+    tracks: typeof row.tracks === 'string' ? JSON.parse(row.tracks) : (row.tracks || []),
     tags: row.tags || [],
     agenda: typeof row.agenda === 'string' ? JSON.parse(row.agenda) : row.agenda,
     customQuestions: typeof row.custom_questions === 'string' ? JSON.parse(row.custom_questions) : row.custom_questions
@@ -200,13 +206,15 @@ app.post('/api/events', verifyAdminAuth, async (req, res) => {
       INSERT INTO events (
         id, title, tagline, category, badge, date, time, location_type, location,
         capacity, max_team_size, allow_solo, max_teams, rsvp_count, cover_image, host_name, host_avatar, host_role,
-        description, tags, agenda, custom_questions
-      ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19, $20, $21, $22)
+        description, deadline_date, prize_pool, banner_image, sponsor_logo, rules, tracks,
+        tags, agenda, custom_questions
+      ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19, $20, $21, $22, $23, $24, $25, $26, $27, $28)
       RETURNING *;
     `, [
       ev.id, ev.title, ev.tagline, ev.category, ev.badge || ev.category, ev.date, ev.time, ev.locationType, ev.location,
-      ev.capacity || 100, maxTeamVal, allowSoloVal, maxTeamsVal, 0, ev.coverImage, ev.hostName || 'TechZen Admin', ev.hostAvatar, 'Community Admin',
-      ev.description, JSON.stringify(ev.tags || []), JSON.stringify(ev.agenda || []), JSON.stringify(ev.customQuestions || [])
+      ev.capacity || 100, maxTeamVal, allowSoloVal, maxTeamsVal, 0, ev.coverImage, ev.hostName || 'TechZen Admin', ev.hostAvatar, ev.hostRole || 'Community Admin',
+      ev.description, ev.deadlineDate || '', ev.prizePool || '', ev.bannerImage || '', ev.sponsorLogo || '', ev.rules || '', JSON.stringify(ev.tracks || []),
+      JSON.stringify(ev.tags || []), JSON.stringify(ev.agenda || []), JSON.stringify(ev.customQuestions || [])
     ]);
 
     res.status(201).json(mapEventRow(rows[0]));
@@ -299,11 +307,12 @@ app.post('/api/auth/login', async (req, res) => {
         techStack: ['Developer']
       };
       
+      // tech_stack is JSONB: serialise it the same way /api/auth/signup does.
       const insertResult = await pool.query(`
         INSERT INTO users (id, name, email, password, role, bio, avatar, tech_stack)
         VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
         RETURNING *;
-      `, [newUser.id, newUser.name, newUser.email, newUser.password, newUser.role, newUser.bio, newUser.avatar, newUser.techStack]);
+      `, [newUser.id, newUser.name, newUser.email, newUser.password, newUser.role, newUser.bio, newUser.avatar, JSON.stringify(newUser.techStack)]);
 
       const u = insertResult.rows[0];
       return res.json({ id: u.id, name: u.name, email: u.email, role: u.role, bio: u.bio, avatar: u.avatar, techStack: u.tech_stack });
@@ -424,11 +433,42 @@ function addSseSubscriber(res, meta = {}) {
   };
 }
 
+// A team roster carries member names, emails, phone numbers and colleges, so a
+// broadcast must reach only the people entitled to that roster: subscribers
+// watching the same event who either hold the team's invite code or appear on
+// the team itself. This mirrors the filter the client applies on receipt.
+function isSubscriberEntitled(sub, payload) {
+  const team = payload.team;
+  const targetEventId = (team && team.eventId) || payload.eventId;
+  if (!targetEventId || sub.eventId !== targetEventId) return false;
+
+  const subEmail = (sub.userEmail || '').toLowerCase().trim();
+
+  // A withdrawal notice concerns exactly one person.
+  if (payload.isWithdrawn) {
+    const withdrawnEmail = (payload.userEmail || '').toLowerCase().trim();
+    return Boolean(subEmail && withdrawnEmail && subEmail === withdrawnEmail);
+  }
+
+  if (!team) return false;
+
+  if (sub.inviteCode && team.inviteCode && sub.inviteCode === team.inviteCode) return true;
+
+  // A member who has not yet loaded the invite code (e.g. joined on another
+  // device) is still entitled to their own team's updates.
+  if (!subEmail) return false;
+  if ((team.leaderEmail || '').toLowerCase().trim() === subEmail) return true;
+  return (team.teammates || []).some(
+    (m) => m && m.email && m.email.toLowerCase().trim() === subEmail
+  );
+}
+
 function notifyTeamUpdate(payload) {
   if (!payload || !sseSubscribers.size) return;
   const dataString = `data: ${JSON.stringify({ type: 'TEAM_UPDATE', ...payload, timestamp: Date.now() })}\n\n`;
 
   sseSubscribers.forEach((sub) => {
+    if (!isSubscriberEntitled(sub, payload)) return;
     try {
       sub.res.write(dataString);
     } catch (e) {
@@ -439,7 +479,7 @@ function notifyTeamUpdate(payload) {
 
 // GET /api/teams/stream - SERVER-SENT EVENTS REALTIME ENDPOINT FOR INSTANT CROSS-DEVICE SYNC
 app.get('/api/teams/stream', (req, res) => {
-  const { eventId, inviteCode } = req.query;
+  const { eventId, inviteCode, userEmail } = req.query;
 
   res.setHeader('Content-Type', 'text/event-stream');
   res.setHeader('Cache-Control', 'no-cache, no-transform');
@@ -447,7 +487,7 @@ app.get('/api/teams/stream', (req, res) => {
   res.setHeader('X-Accel-Buffering', 'no');
   if (res.flushHeaders) res.flushHeaders();
 
-  const removeSubscriber = addSseSubscriber(res, { eventId, inviteCode });
+  const removeSubscriber = addSseSubscriber(res, { eventId, inviteCode, userEmail });
 
   res.write(`data: ${JSON.stringify({ type: 'CONNECTED', eventId, inviteCode })}\n\n`);
 

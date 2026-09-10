@@ -267,6 +267,11 @@ export default function HostDashboard() {
     showToast('✅ Registration edit saved and recorded in Admin Audit Log!');
   };
 
+  // RFC 4180: wrap every field and double any embedded quote. Team names and
+  // project titles routinely contain commas and quotes, which previously shifted
+  // every column after them.
+  const csvCell = (value) => `"${String(value ?? '').replace(/"/g, '""')}"`;
+
   const exportCSV = () => {
     if (!selectedEvent || filteredRoster.length === 0) {
       showToast('No roster entries to export!', 'info');
@@ -291,24 +296,24 @@ export default function HostDashboard() {
 
       return [
         r.ticketCode,
-        `"${r.teamName}"`,
-        `"${r.userName}"`,
+        r.teamName,
+        r.userName,
         r.userEmail,
-        `"${m1.name || ''}"`, m1.email || '', `"${m1.college || 'N/A'}"`, `"${m1.role || ''}"`,
-        `"${m2.name || ''}"`, m2.email || '', `"${m2.college || 'N/A'}"`, `"${m2.role || ''}"`,
-        `"${m3.name || ''}"`, m3.email || '', `"${m3.college || 'N/A'}"`, `"${m3.role || ''}"`,
-        `"${m4.name || ''}"`, m4.email || '', `"${m4.college || 'N/A'}"`, `"${m4.role || ''}"`,
-        `"${p.track || 'N/A'}"`,
-        `"${p.title || 'N/A'}"`,
-        `"${p.pptUrl || 'N/A'}"`,
-        `"${p.pptFileName || 'N/A'}"`,
-        `"${p.repoUrl || 'N/A'}"`,
-        `"${p.demoUrl || 'N/A'}"`,
-        `"${p.techStack || 'N/A'}"`
-      ];
+        m1.name || '', m1.email || '', m1.college || 'N/A', m1.role || '',
+        m2.name || '', m2.email || '', m2.college || 'N/A', m2.role || '',
+        m3.name || '', m3.email || '', m3.college || 'N/A', m3.role || '',
+        m4.name || '', m4.email || '', m4.college || 'N/A', m4.role || '',
+        p.track || 'N/A',
+        p.title || 'N/A',
+        p.pptUrl || 'N/A',
+        p.pptFileName || 'N/A',
+        p.repoUrl || 'N/A',
+        p.demoUrl || 'N/A',
+        p.techStack || 'N/A'
+      ].map(csvCell);
     });
 
-    const csvContent = [headers.join(','), ...rows.map(r => r.join(','))].join('\n');
+    const csvContent = [headers.map(csvCell).join(','), ...rows.map(r => r.join(','))].join('\r\n');
     const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
     const url = URL.createObjectURL(blob);
     const link = document.createElement('a');

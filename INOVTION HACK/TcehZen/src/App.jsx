@@ -3,15 +3,20 @@ import { Route, Switch, useLocation } from 'wouter';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { ClerkProvider } from '@clerk/react';
 import { GoogleOAuthProvider } from '@react-oauth/google';
-import { ErrorBoundary } from './components/error-boundary';
+// Extensions are explicit on purpose: src/ still holds legacy .jsx twins of these
+// modules (Home.jsx, EventDetail.jsx, UserPortal.jsx, NotFound.jsx, EventCard.jsx,
+// ErrorBoundary.jsx). Vite resolves .jsx before .tsx, so an extensionless specifier
+// picks the .jsx twin on case-insensitive macOS and the .tsx file on Linux/Vercel —
+// i.e. dev and production would render different components.
+import { ErrorBoundary } from './components/error-boundary.tsx';
 import { AuthProvider } from './context/AuthContext';
 import { EventProvider } from './context/EventContext';
 
-import Home from './pages/home';
-import AllEvents from './pages/all-events';
-import EventDetail from './pages/event-detail';
-import UserPortal from './pages/user-portal';
-import NotFound from './pages/not-found';
+import Home from './pages/home.tsx';
+import AllEvents from './pages/all-events.tsx';
+import EventDetail from './pages/event-detail.tsx';
+import UserPortal from './pages/user-portal.tsx';
+import NotFound from './pages/not-found.tsx';
 
 import CreateEventModal from './components/CreateEventModal';
 import TicketModal from './components/TicketModal';
