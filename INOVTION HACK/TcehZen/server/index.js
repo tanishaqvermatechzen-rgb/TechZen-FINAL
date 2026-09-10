@@ -1,6 +1,14 @@
 import express from 'express';
 import cors from 'cors';
 import crypto from 'crypto';
+import fs from 'fs';
+
+if (fs.existsSync('.env.local')) {
+  try { process.loadEnvFile('.env.local'); } catch (e) {}
+} else if (fs.existsSync('.env')) {
+  try { process.loadEnvFile('.env'); } catch (e) {}
+}
+
 import pool, { initDatabase, isDbConfigured } from './db.js';
 import { INITIAL_EVENTS } from '../src/mockData.js';
 
@@ -103,17 +111,18 @@ async function seedInitialEvents() {
   for (const ev of INITIAL_EVENTS) {
     const allowSoloVal = ev.allowSolo !== undefined ? ev.allowSolo : true;
     const maxTeamVal = ev.maxTeamSize || 4;
+    const tagsVal = Array.isArray(ev.tags) ? JSON.stringify(ev.tags) : (ev.tags || '[]');
     await pool.query(`
       INSERT INTO events (
         id, title, tagline, category, badge, date, time, location_type, location,
         capacity, max_team_size, allow_solo, rsvp_count, cover_image, host_name, host_avatar, host_role,
         description, tags, agenda, custom_questions
-      ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19, $20, $21)
+      ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19::jsonb, $20, $21)
       ON CONFLICT (id) DO NOTHING;
     `, [
       ev.id, ev.title, ev.tagline, ev.category, ev.badge, ev.date, ev.time, ev.locationType || ev.format || 'ONLINE', ev.location,
       ev.capacity || 100, maxTeamVal, allowSoloVal, ev.rsvpCount || 0, ev.coverImage || ev.imageUrl, ev.hostName, ev.hostAvatar, ev.hostRole,
-      ev.description, JSON.stringify(ev.tags || []), JSON.stringify(ev.agenda || []), JSON.stringify(ev.customQuestions || [])
+      ev.description, tagsVal, JSON.stringify(ev.agenda || []), JSON.stringify(ev.customQuestions || [])
     ]);
   }
   console.log('✅ Initial events seeded into Supabase!');

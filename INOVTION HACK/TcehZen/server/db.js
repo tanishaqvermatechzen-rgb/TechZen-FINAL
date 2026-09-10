@@ -1,6 +1,14 @@
 import pg from 'pg';
+import fs from 'fs';
+
+if (fs.existsSync('.env.local')) {
+  try { process.loadEnvFile('.env.local'); } catch (e) {}
+} else if (fs.existsSync('.env')) {
+  try { process.loadEnvFile('.env'); } catch (e) {}
+}
 
 const connectionString = process.env.DATABASE_URL || '';
+
 export const isDbConfigured = Boolean(connectionString);
 
 const pool = new pg.Pool({
@@ -88,6 +96,15 @@ export async function initDatabase() {
       ALTER TABLE events ADD COLUMN IF NOT EXISTS sponsor_logo TEXT;
       ALTER TABLE events ADD COLUMN IF NOT EXISTS rules TEXT;
       ALTER TABLE events ADD COLUMN IF NOT EXISTS tracks JSONB DEFAULT '[]'::jsonb;
+      DO $$ 
+      BEGIN 
+        IF EXISTS (
+          SELECT 1 FROM information_schema.columns 
+          WHERE table_name='events' AND column_name='tags' AND data_type='ARRAY'
+        ) THEN
+          ALTER TABLE events ALTER COLUMN tags TYPE JSONB USING to_jsonb(tags);
+        END IF;
+      END $$;
     `);
 
     // Registrations table
